@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+import toml
 
 from groq import Groq
 
@@ -43,9 +44,26 @@ def read_markdown_file(file_path: str) -> str:
         return "\n".join(content)
 
 
+def create_or_read_proompt_file():
+    filename = ".proompt"
+    if not os.path.exists(filename):
+        data = {
+            "model_name": "llama3-70b-8192",
+            "system_prompt": "",
+            "buffer_name": "ask.md"
+        }
+        with open(filename, "w") as f:
+            toml.dump(data, f)
+    with open(filename, "r") as f:
+        data = toml.load(f)
+    return (data["model_name"],
+            data["system_prompt"],
+            data["buffer_name"])
+
+
 if __name__ == "__main__":
-    sysprompt = "You are an expert python developer. Your job is to write code, do not explain the code that you produce. Make sure you document each function you return with a docstring."
-    prompt = read_markdown_file("ask.md")
-    response = dispatch(prompt, sysprompt)
-    with open('ask.md', "a") as f:
+    model, sysprompt, filename = create_or_read_proompt_file()
+    prompt = read_markdown_file(filename)
+    response = dispatch(prompt, sysprompt, model)
+    with open(filename, "a") as f:
         f.write("\n"*3 + response)

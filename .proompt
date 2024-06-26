@@ -1,3 +1,3 @@
-model_name="llama3-70b-8192"
+model_name="llama3-70b-8192r
 system_prompt=""
-buffer_name=
+buffer_name="ask.md"
